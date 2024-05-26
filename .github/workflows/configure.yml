@@ -1,50 +1,19 @@
-name: First-Test
-on:
-  push:
-    branches:
-      - main
-    
+name: Automated API tests using Postman CLI
+
+on: push
+
 jobs:
-  build:
+  automated-api-tests:
     runs-on: ubuntu-latest
-    
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-      - name: Creates directory
+      - name: Install Postman CLI
         run: |
-          mkdir Result
-
-
-      # Install Node on the runner
-      - name: Install Node
-        # uses: actions/setup-node@v1
-        uses: actions/checkout@v3
-        with:
-          node-version: "17.x"
-
-
-      # Install the newman command line utility and also install the html extra reporter
-      - name: Install newman
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+      - name: Run API tests
         run: |
-          npm install -g newman
-          npm install -g newman-reporter-htmlextra
-
-
-      # Make directory to upload the test results
-      # - name: Make Directory for results
-        # run: mkdir -p apiFunctionalTestResults
-
-
-      # Run the POSTMAN collection
-      - name: Run POSTMAN collection
-        run: |
-          newman run https://api.postman.com/collections/16542258-af95fb48-d8ba-45a9-bd02-26de5ff9e4c7?access_key=PMAT-01HWTE03PCJH0S68J30GWNWR0C -r htmlextra --reporter-htmlextra-export Result/htmlreport.html
-
-
-      # Upload the contents of Test Results directory to workspace
-      - name: Output the run Details
-        uses: actions/upload-artifact@v3
-        with:
-          name: RunReports
-          path: Result
+          postman collection run "16542258-af95fb48-d8ba-45a9-bd02-26de5ff9e4c7" -e "16542258-701afa0d-9bbf-4cfd-9d66-90508b5bec4d"
+      - name: logout
+        run: postman logout ${{ secrets.POSTMAN_API_KEY }}
