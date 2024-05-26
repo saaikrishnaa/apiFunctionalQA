@@ -1,54 +1,44 @@
-# This is a basic workflow to help you get started with Actions
-
-name: My CI-CT job name
-
-# Controls when the workflow will run
+name: First-Test
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+    branches:
+      - main
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  test-api:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-      - name: Create Directory
-        run: |
-          mkdir DirectoryForMyReports
+      - uses: actions/checkout@v2
 
-      # Install NodeJS
+
+      # Install Node on the runner
       - name: Install Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v1
         with:
-          node-version: '18.x'
+          node-version: "12.x"
 
-      # Install Newman & HTMLExtra
+
+      # Install the newman command line utility and also install the html extra reporter
       - name: Install newman
         run: |
           npm install -g newman
           npm install -g newman-reporter-htmlextra
 
-      # Run Postman collection
-      - name : Run the postman collection
-        run : |
-          newman run "reqResRESTAPI.postman_collection.json" -e "QA.postman_environment.json" -r htmlextra --reporter-htmlextra-export DirectoryForMyReports/SanityRun.html
 
-      # Publish the generated report
-      - name : Publish Sanity Report
-        uses : actions/upload-artifact@v4
-        with :
-          name : Reports
-          path : DirectoryForMyReports
-      
+      # Make directory to upload the test results
+      - name: Make Directory for results
+        run: mkdir -p apiFunctionalTestResults
+
+
+      # Run the POSTMAN collection
+      - name: Run POSTMAN collection
+        run: |
+          newman run reqres-with-documentation.postman_collection.json -e DEV.postman_environment.json -r htmlextra --reporter-htmlextra-export apiFunctionalTestResults/htmlreport.html --reporter-htmlextra-darkTheme  > apiFunctionalTestResults/runreport1.html
+
+
+      # Upload the contents of Test Results directory to workspace
+      - name: Output the run Details
+        uses: actions/upload-artifact@v2
+        with:
+          name: RunReports
+          path: apiFunctionalTestResults
