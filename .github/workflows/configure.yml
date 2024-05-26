@@ -39,7 +39,7 @@ jobs:
       # Run the POSTMAN collection
       - name: Run POSTMAN collection
         run: |
-          newman run "reqResRESTAPI.postman_collection.json" -e "QA.postman_environment.json" -r htmlextra --reporter-htmlextra-export Result/htmlreport.html
+          newman run https://api.postman.com/collections/16542258-af95fb48-d8ba-45a9-bd02-26de5ff9e4c7?access_key=PMAT-01HWTE03PCJH0S68J30GWNWR0C -r htmlextra --reporter-htmlextra-export Result/htmlreport.html
 
 
       # Upload the contents of Test Results directory to workspace
